@@ -11,9 +11,9 @@ const bucketName string = "root"
 
 var ErrMissingParamFilepath error = errors.New("Could not find parameter \"filepath\"") 
 
+// IntegratedKV is an embedded KV store. It stores data in a file.
 type IntegratedKV struct {
 	db *bolt.DB
-	file string
 }
 
 func (i *IntegratedKV) Open(params map[string]interface{}) error {

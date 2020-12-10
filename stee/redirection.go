@@ -13,17 +13,17 @@ var (
 	ErrTargetIsNotAValidURL = errors.New("The redirection target is not a valid URL")
 )
 
-func (c *Core) GetRedirectionTarget(key string) (target string, ok bool){
+func (c *Core) GetRedirection(key string) (target string, ok bool){
 	target, ok = (*c.store).ReadRedirection(key)
 	return 
 }
 
-func (c *Core) SetRedirectionTarget(key string, target string) (err error){
+func (c *Core) AddRedirection(key string, target string) (err error){
 	err = (*c.store).WriteRedirection(key, target)
 	return 
 }
 
-func (c *Core) DelRedirectionTarget(key string) (err error){
+func (c *Core) DeleteRedirection(key string) (err error){
 	err = (*c.store).DeleteRedirection(key)
 	return err
 }

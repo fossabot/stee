@@ -31,7 +31,7 @@ func handleSimpleAdd (core *stee.Core) httprouter.Handle {
 			return
 		}
 		target := string(targetBytes)
-		err = core.SetRedirectionTarget(key, target)
+		err = core.AddRedirection(key, target)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			fmt.Fprintf(w, "Error: %s", err.Error())
@@ -44,7 +44,7 @@ func handleSimpleAdd (core *stee.Core) httprouter.Handle {
 func handleSimpleDel (core *stee.Core) httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, ps httprouter.Params){
 		key := ps.ByName("key")
-		err := core.DelRedirectionTarget(key)
+		err := core.DeleteRedirection(key)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			fmt.Fprintf(w, "Error: %s", err.Error())

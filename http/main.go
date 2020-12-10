@@ -15,7 +15,7 @@ func handleMain(core *stee.Core) http.Handler {
 		if strings.HasPrefix(key, "/") {key = key[1:] }
 		if strings.HasSuffix(key, "/") {key = key[:len(key)-1] }
 
-		target, ok := core.GetRedirectionTarget(key)
+		target, ok := core.GetRedirection(key)
 		if !ok {
 			w.WriteHeader(http.StatusNotFound)
 			fmt.Fprintf(w, "Error 404: No redirection found for key \"%s\"", key)
