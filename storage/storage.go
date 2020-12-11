@@ -1,6 +1,7 @@
 package storage
 
 // Store is an interface representing the possible interactions with a storage.
+// When working with a Store, you should always open it before use and close it after use.
 type Store interface {
 	// Open initialize the store. (Could be opening a file or initiating a connection to a remote database)
 	Open(map[string]interface{}) (error)
