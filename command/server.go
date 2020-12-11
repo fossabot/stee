@@ -31,9 +31,9 @@ type ServerConfig struct {
 	Address string
 	Port string
 	TLS struct {
-		Enabled bool
-		TLSCertPath string
-		TLSKeyPath string
+		Enable bool
+		CertPath string
+		KeyPath string
 	}
 	API struct {
 		Enable bool
@@ -52,6 +52,7 @@ type ServerConfig struct {
 func ServerRun(cmd *cobra.Command, args []string) {
 	// Create configuration
 	config := loadConfig().Server
+	fmt.Printf("config: %+v\n", config)
 	// Create core
 	core := stee.NewCore()
 
@@ -61,11 +62,11 @@ func ServerRun(cmd *cobra.Command, args []string) {
 	})
 
 	// Starting to listen
-	if config.TLS.Enabled {
+	if config.TLS.Enable {
 		go func() {
 			defer println("Stopped listening at https://" + srv.Addr)
 			println("Listening at https://" + srv.Addr)
-			err := srv.ListenAndServeTLS(config.TLS.TLSCertPath, config.TLS.TLSKeyPath)
+			err := srv.ListenAndServeTLS(config.TLS.CertPath, config.TLS.KeyPath)
 			if err != http.ErrServerClosed {
 				panic(fmt.Errorf("Server closed unexpectedly: %e", err))
 			}
@@ -127,6 +128,7 @@ func loadConfig() ServerConfig {
 
 // setDefaults sets the default config for Stee.
 func setDefaults() {
+	
 	viper.SetDefault("server.address", "localhost")
 	viper.SetDefault("server.port", "8008")
 
@@ -135,4 +137,5 @@ func setDefaults() {
 	viper.SetDefault("server.api.SimpleAPI.enable", true)
 
 	viper.SetDefault("server.ui.enable", true)
+	viper.SetDefault("server.api.ReservedURLPrefix", "_ui")
 }
