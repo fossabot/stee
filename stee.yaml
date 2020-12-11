@@ -1,0 +1,15 @@
+server:
+    address: "localhost"
+    port: 8008
+    tls:
+        enable: false
+        certpath: ""
+        keypath: ""
+    api:
+        enable: true
+        URLPathPrefix: "_api"
+        simpleAPI:
+            enable: true # No effect at the moment, always true.
+    ui:
+        enable: true # No effect at the moment, always true.
+        URLPathPrefix: "_ui"
