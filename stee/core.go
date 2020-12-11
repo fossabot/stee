@@ -1,6 +1,10 @@
 package stee
 
-import "github.com/milanrodriguez/stee/storage"
+import (
+	"fmt"
+
+	"github.com/milanrodriguez/stee/storage"
+)
 
 // Core is the central manager of Stee. Primary interaction point
 type Core struct {
@@ -20,4 +24,10 @@ func NewCore() *Core {
 	core.AddRedirection("_stee", "https://github.com/milanrodriguez/stee")
 
 	return &core
+}
+
+// Close closes the core and the connection to its storage.
+func (core *Core) Close() {
+	(*core.store).Close()
+	fmt.Printf("Core closed\n")
 }
