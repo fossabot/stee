@@ -6,7 +6,20 @@ import (
 
 	steehttp "github.com/milanrodriguez/stee/http"
 	"github.com/milanrodriguez/stee/stee"
+	"github.com/spf13/cobra"
 )
+
+func init() {
+	rootCommand.AddCommand(serverCommand)
+  }
+  
+  var serverCommand = &cobra.Command{
+	Use:   "server",
+	Short: "Start the Stee server",
+	Long:  `Start the Stee server`,
+	Run: ServerRun,
+  }
+  
 
 // ServerConfig is the configuration for the Stee server
 type ServerConfig struct {
@@ -24,7 +37,7 @@ type ServerConfig struct {
 }
 
 // ServerRun runs a Stee server. Blocking.
-func ServerRun() int {
+func ServerRun(cmd *cobra.Command, args []string) {
 
 	// Create configuration
 
@@ -45,9 +58,6 @@ func ServerRun() int {
 	println("Started listing at http://" + cfg.ListenAddress)
 	
 	wg.Wait()
-
-	return 1
-
 }
 
 // DefaultConfig returns the default config for Stee.
