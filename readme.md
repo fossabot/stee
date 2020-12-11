@@ -15,7 +15,8 @@ It stores redirections in a file in a persistent way.
 
 In this order:
 
-- [ ] Tests
+- [x] Tests
+- [ ] File-based configuration (+flags +env)
 - [ ] HTTPS
 - [ ] proper API and auth
 - [ ] Extra functionalities (password protection, captcha, TTL, etc)
