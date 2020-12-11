@@ -18,4 +18,5 @@ var versionCommand = &cobra.Command{
 		fmt.Println(`Stee v0.0
 Development version - very unstable`)
 	},
+	Aliases: []string{"v"},
 }
