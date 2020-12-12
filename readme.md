@@ -3,6 +3,9 @@ This project is in a very very early stage. It is incomplete and untested.
 > I consider this project as a training project so you probably shouldn't use it for anything important but any critics on the code are welcomed.
 
 # Stee - URL shortening and more
+[![License Card](https://img.shields.io/github/license/milanrodriguez/stee)](LICENSE)
+[![Version Card](https://img.shields.io/github/v/release/milanrodriguez/stee?sort=semver)](https://github.com/milanrodriguez/stee/releases)
+[![Go Report Card](https://goreportcard.com/badge/github.com/milanrodriguez/stee)](https://goreportcard.com/report/github.com/milanrodriguez/stee)
 
 Simple Self-hosted URL redirection service written in Go
 
