@@ -10,7 +10,6 @@ import (
 	steehttp "github.com/milanrodriguez/stee/http"
 	"github.com/milanrodriguez/stee/stee"
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 )
 
 func init() {
@@ -27,25 +26,23 @@ var serverCommand = &cobra.Command{
 
 // ServerConfig is the configuration for the Stee server
 type ServerConfig struct {
-	Server struct {
-		Address string
-		Port    string
-		TLS     struct {
-			Enable   bool
-			CertPath string
-			KeyPath  string
+	Address string
+	Port    string
+	TLS     struct {
+		Enable   bool
+		CertPath string
+		KeyPath  string
+	}
+	API struct {
+		Enable        bool
+		URLPathPrefix string
+		SimpleAPI     struct {
+			Enable bool
 		}
-		API struct {
-			Enable        bool
-			URLPathPrefix string
-			SimpleAPI     struct {
-				Enable bool
-			}
-		}
-		UI struct {
-			Enable        bool
-			URLPathPrefix string
-		}
+	}
+	UI struct {
+		Enable        bool
+		URLPathPrefix string
 	}
 }
 
@@ -53,7 +50,7 @@ type ServerConfig struct {
 func ServerRun(cmd *cobra.Command, args []string) {
 	// Create configuration
 	config := loadConfig().Server
-	fmt.Printf("config: %+v\n", config)
+
 	// Create core
 	core := stee.NewCore()
 
@@ -65,8 +62,8 @@ func ServerRun(cmd *cobra.Command, args []string) {
 	// Starting to listen
 	if config.TLS.Enable {
 		go func() {
-			defer println("Stopped listening at https://" + srv.Addr)
-			println("Listening at https://" + srv.Addr)
+			defer fmt.Printf("Stopped listening at https://%s/\n", srv.Addr)
+			fmt.Printf("Listening at https://%s/\n", srv.Addr)
 			err := srv.ListenAndServeTLS(config.TLS.CertPath, config.TLS.KeyPath)
 			if err != http.ErrServerClosed {
 				panic(fmt.Errorf("Server closed unexpectedly: %e", err))
@@ -74,8 +71,9 @@ func ServerRun(cmd *cobra.Command, args []string) {
 		}()
 	} else {
 		go func() {
-			defer println("Stopped listening at http://" + srv.Addr)
-			println("Listening at http://" + srv.Addr)
+			defer fmt.Printf("Stopped listening at http://%s/\n", srv.Addr)
+			fmt.Printf("⚠️ You are running the server without TLS encryption! You should consider setting up HTTPS for production use.\n")
+			fmt.Printf("Listening at http://%s/\n", srv.Addr)
 			err := srv.ListenAndServe()
 			if err != http.ErrServerClosed {
 				panic(fmt.Errorf("Server closed unexpectedly: %e", err))
@@ -98,49 +96,4 @@ func ServerRun(cmd *cobra.Command, args []string) {
 		break
 	}
 
-}
-
-// loadConfig loads the config from a file
-func loadConfig() ServerConfig {
-	// We're looking for a file named "stee.yaml"
-	viper.SetConfigName("stee")
-	viper.SetConfigType("yaml")
-
-	// In those directories
-	viper.AddConfigPath(".")
-	viper.AddConfigPath("./config/")
-	viper.AddConfigPath("/etc/stee/")
-
-	// Environement variables take precedence over file config. See https://github.com/spf13/viper#why-viper
-	viper.AutomaticEnv()
-
-	// Defaults are the less important values. https://github.com/spf13/viper#why-viper
-	setDefaults()
-
-	err := viper.ReadInConfig()
-	if err != nil {
-		panic(fmt.Errorf("Fatal error config file: %s", err))
-	}
-
-	var cfg ServerConfig
-	err = viper.Unmarshal(&cfg)
-	if err != nil {
-		panic(fmt.Errorf("unable to decode into struct, %s", err))
-	}
-
-	return cfg
-}
-
-// setDefaults sets the default config for Stee.
-func setDefaults() {
-
-	viper.SetDefault("server.address", "localhost")
-	viper.SetDefault("server.port", "8008")
-
-	viper.SetDefault("server.api.enable", true)
-	viper.SetDefault("server.api.ReservedURLPrefix", "_api")
-	viper.SetDefault("server.api.SimpleAPI.enable", true)
-
-	viper.SetDefault("server.ui.enable", true)
-	viper.SetDefault("server.api.ReservedURLPrefix", "_ui")
 }
