@@ -2,17 +2,19 @@ package http
 
 import (
 	"context"
-	"fmt"
 	"net/http"
 	"strings"
 
 	"github.com/milanrodriguez/stee/stee"
 )
 
+// Note: the "general handler" is the handler for the "normal" requests, the one that handles redirections.
+
+// HandlersSet is the set of "sub"-handlers for the different categories of requests (API, UI, Main).
 type HandlersSet struct {
-	Main http.Handler // For browser redirection, "normal usage"
-	API  http.Handler // For handling api requests
-	UI   http.Handler // For handling the web app UI
+	General http.Handler // For browser redirection, "normal usage"
+	API     http.Handler // For handling api requests
+	UI      http.Handler // For handling the web app UI
 }
 
 // RootHandler returns a http.Handler in charge of dispatching requests to the appropriate "sub"-handler
@@ -21,7 +23,7 @@ func RootHandler(core *stee.Core, APIPrefix string, UIPrefix string) http.Handle
 		panic("RootHandler: no core!")
 	}
 
-	// Cleans the prefixes
+	// Clean the prefixes
 	prefixes := []*string{&APIPrefix, &UIPrefix}
 	for i := range prefixes {
 		if !strings.HasPrefix(*prefixes[i], "/") {
@@ -33,13 +35,12 @@ func RootHandler(core *stee.Core, APIPrefix string, UIPrefix string) http.Handle
 	}
 
 	handlers := HandlersSet{
-		Main: handleMain(core),
-		API:  handleAPI(core, APIPrefix),
-		UI:   handleUI(core, UIPrefix),
+		General: handleMain(core),
+		API:     handleAPI(core, APIPrefix),
+		UI:      handleUI(core, UIPrefix),
 	}
 
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		fmt.Println(r.URL.Path)
 		ctx := context.Background()
 		r = r.WithContext(ctx)
 		switch {
@@ -48,7 +49,7 @@ func RootHandler(core *stee.Core, APIPrefix string, UIPrefix string) http.Handle
 		case strings.HasPrefix(r.URL.Path, UIPrefix):
 			handlers.UI.ServeHTTP(w, r)
 		default:
-			handlers.Main.ServeHTTP(w, r)
+			handlers.General.ServeHTTP(w, r)
 		}
 	})
 }
