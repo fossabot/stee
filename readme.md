@@ -62,7 +62,7 @@ Flags and environment variables should be available soon, see [this issue](https
 
 ## Maintainer
 
-@milanrodriguez
+[@milanrodriguez](https://github.com/milanrodriguez)
 
 ## License
 
