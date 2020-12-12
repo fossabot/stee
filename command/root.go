@@ -10,7 +10,7 @@ import (
 var rootCommand = &cobra.Command{
 	Use:   "stee",
 	Short: "Stee is a simple URL minifier.",
-	Long: `A simple URL minifier with a lot of extra possibilities`,
+	Long:  `A simple URL minifier with a lot of extra possibilities`,
 }
 
 // Execute executes the provided command, taking care of arguments and flags.

@@ -12,10 +12,10 @@ func TestIntegratedKV(t *testing.T) {
 
 	store := IntegratedKV{}
 
-	storeParams := map[string]interface{}{"filepath": t.TempDir()+"/stee.db"}
+	storeParams := map[string]interface{}{"filepath": t.TempDir() + "/stee.db"}
 
 	// open
-	
+
 	err = store.Open(storeParams)
 	if err != nil || store.db == nil {
 		t.Errorf("Could not open the store")
@@ -65,10 +65,10 @@ func TestIntegratedKV(t *testing.T) {
 
 	// Try to open without params
 
-    defer func() {
-        if r := recover(); r == nil {
-            t.Errorf("No panic when not providing params to open store")
-        }
-    }()
-	err = store.Open(map[string]interface{}{})	
+	defer func() {
+		if r := recover(); r == nil {
+			t.Errorf("No panic when not providing params to open store")
+		}
+	}()
+	err = store.Open(map[string]interface{}{})
 }

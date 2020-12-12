@@ -12,8 +12,12 @@ func handleMain(core *stee.Core) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		key := r.URL.Path
 
-		if strings.HasPrefix(key, "/") {key = key[1:] }
-		if strings.HasSuffix(key, "/") {key = key[:len(key)-1] }
+		if strings.HasPrefix(key, "/") {
+			key = key[1:]
+		}
+		if strings.HasSuffix(key, "/") {
+			key = key[:len(key)-1]
+		}
 
 		target, ok := core.GetRedirection(key)
 		if !ok {

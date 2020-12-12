@@ -9,7 +9,7 @@ import (
 func init() {
 	rootCommand.AddCommand(versionCommand)
 }
-  
+
 var versionCommand = &cobra.Command{
 	Use:   "version",
 	Short: "Print the version of Stee",

@@ -11,14 +11,14 @@ import (
 
 type HandlersSet struct {
 	Main http.Handler // For browser redirection, "normal usage"
-	API http.Handler // For handling api requests
-	UI http.Handler // For handling the web app UI
+	API  http.Handler // For handling api requests
+	UI   http.Handler // For handling the web app UI
 }
 
 // RootHandler returns a http.Handler in charge of dispatching requests to the appropriate "sub"-handler
 func RootHandler(core *stee.Core, APIPrefix string, UIPrefix string) http.Handler {
-    if core == nil {
-        panic("RootHandler: no core!")
+	if core == nil {
+		panic("RootHandler: no core!")
 	}
 
 	// Cleans the prefixes
@@ -34,22 +34,21 @@ func RootHandler(core *stee.Core, APIPrefix string, UIPrefix string) http.Handle
 
 	handlers := HandlersSet{
 		Main: handleMain(core),
-		API: handleAPI(core, APIPrefix),
-		UI: handleUI(core, UIPrefix),
+		API:  handleAPI(core, APIPrefix),
+		UI:   handleUI(core, UIPrefix),
 	}
 
-    return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		fmt.Println(r.URL.Path)
 		ctx := context.Background()
 		r = r.WithContext(ctx)
-        switch {
+		switch {
 		case strings.HasPrefix(r.URL.Path, APIPrefix):
-			handlers.API.ServeHTTP(w,r)
+			handlers.API.ServeHTTP(w, r)
 		case strings.HasPrefix(r.URL.Path, UIPrefix):
-			handlers.UI.ServeHTTP(w,r)
+			handlers.UI.ServeHTTP(w, r)
 		default:
-			handlers.Main.ServeHTTP(w,r)
+			handlers.Main.ServeHTTP(w, r)
 		}
-    })
+	})
 }
-

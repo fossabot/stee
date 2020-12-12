@@ -9,7 +9,7 @@ import (
 
 const bucketName string = "root"
 
-var ErrMissingParamFilepath error = errors.New("Could not find parameter \"filepath\"") 
+var ErrMissingParamFilepath error = errors.New("Could not find parameter \"filepath\"")
 
 // IntegratedKV is an embedded KV store. It stores data in a file.
 type IntegratedKV struct {
@@ -52,11 +52,13 @@ func (i *IntegratedKV) ReadRedirection(key string) (string, bool) {
 		return nil
 	})
 	ok := true
-	if result == nil {ok = false}
+	if result == nil {
+		ok = false
+	}
 	return string(result), ok
 }
 
-func (i *IntegratedKV) WriteRedirection(key string, target string) (err error) {	
+func (i *IntegratedKV) WriteRedirection(key string, target string) (err error) {
 	i.db.Update(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte(bucketName))
 		err := b.Put([]byte(key), []byte(target))

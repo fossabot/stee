@@ -16,36 +16,37 @@ import (
 func init() {
 	rootCommand.AddCommand(serverCommand)
 }
-  
+
 var serverCommand = &cobra.Command{
-	Use:   "server",
-	Short: "Start the Stee server",
-	Long:  `Start the Stee server`,
-	Run: ServerRun,
+	Use:     "server",
+	Short:   "Start the Stee server",
+	Long:    `Start the Stee server`,
+	Run:     ServerRun,
 	Aliases: []string{"serve", "srv"},
 }
 
 // ServerConfig is the configuration for the Stee server
 type ServerConfig struct {
-	Server struct { 
-	Address string
-	Port string
-	TLS struct {
-		Enable bool
-		CertPath string
-		KeyPath string
-	}
-	API struct {
-		Enable bool
-		URLPathPrefix string
-		SimpleAPI struct {
-			Enable bool
+	Server struct {
+		Address string
+		Port    string
+		TLS     struct {
+			Enable   bool
+			CertPath string
+			KeyPath  string
+		}
+		API struct {
+			Enable        bool
+			URLPathPrefix string
+			SimpleAPI     struct {
+				Enable bool
+			}
+		}
+		UI struct {
+			Enable        bool
+			URLPathPrefix string
 		}
 	}
-	UI struct {
-		Enable bool
-		URLPathPrefix string
-	}}
 }
 
 // ServerRun runs a Stee server. Blocking.
@@ -58,7 +59,7 @@ func ServerRun(cmd *cobra.Command, args []string) {
 
 	srv := steehttp.NewServer(steehttp.ServerConfig{
 		ListenAddress: config.Address + ":" + config.Port,
-		Handler: steehttp.RootHandler(core, config.API.URLPathPrefix, config.UI.URLPathPrefix),
+		Handler:       steehttp.RootHandler(core, config.API.URLPathPrefix, config.UI.URLPathPrefix),
 	})
 
 	// Starting to listen
@@ -96,7 +97,7 @@ func ServerRun(cmd *cobra.Command, args []string) {
 		fmt.Printf("Bye!\n")
 		break
 	}
-	
+
 }
 
 // loadConfig loads the config from a file
@@ -117,18 +118,22 @@ func loadConfig() ServerConfig {
 	setDefaults()
 
 	err := viper.ReadInConfig()
-	if err != nil {panic(fmt.Errorf("Fatal error config file: %s", err))}
+	if err != nil {
+		panic(fmt.Errorf("Fatal error config file: %s", err))
+	}
 
 	var cfg ServerConfig
 	err = viper.Unmarshal(&cfg)
-	if err != nil {panic(fmt.Errorf("unable to decode into struct, %s", err))}
+	if err != nil {
+		panic(fmt.Errorf("unable to decode into struct, %s", err))
+	}
 
 	return cfg
 }
 
 // setDefaults sets the default config for Stee.
 func setDefaults() {
-	
+
 	viper.SetDefault("server.address", "localhost")
 	viper.SetDefault("server.port", "8008")
 
