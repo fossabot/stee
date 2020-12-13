@@ -11,5 +11,5 @@ server:
         simpleAPI:
             enable: true # No effect at the moment, always true.
     ui:
-        enable: true # No effect at the moment, always true.
+        enable: true
         URLPathPrefix: "_ui"
