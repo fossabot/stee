@@ -56,13 +56,17 @@ func ServerRun(cmd *cobra.Command, args []string) {
 
 	srv := steehttp.NewServer(steehttp.ServerConfig{
 		ListenAddress: config.Address + ":" + config.Port,
-		Handler:       steehttp.RootHandler(core, config.API.URLPathPrefix, config.UI.URLPathPrefix),
+		Handler: steehttp.HandleRoot(
+			steehttp.Core(core),
+			steehttp.EnableAPI(config.API.Enable, config.API.URLPathPrefix),
+			steehttp.EnableUI(config.UI.Enable, config.UI.URLPathPrefix),
+		),
 	})
 
 	// Starting to listen
 	if config.TLS.Enable {
 		go func() {
-			defer fmt.Printf("Stopped listening at https://%s/\n", srv.Addr)
+			defer fmt.Printf("Stopped listening at %s\n", srv.Addr)
 			fmt.Printf("Listening at https://%s/\n", srv.Addr)
 			err := srv.ListenAndServeTLS(config.TLS.CertPath, config.TLS.KeyPath)
 			if err != http.ErrServerClosed {
@@ -71,7 +75,7 @@ func ServerRun(cmd *cobra.Command, args []string) {
 		}()
 	} else {
 		go func() {
-			defer fmt.Printf("Stopped listening at http://%s/\n", srv.Addr)
+			defer fmt.Printf("Stopped listening at %s\n", srv.Addr)
 			fmt.Printf("⚠️ You are running the server without TLS encryption! You should consider setting up HTTPS for production use.\n")
 			fmt.Printf("Listening at http://%s/\n", srv.Addr)
 			err := srv.ListenAndServe()

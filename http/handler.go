@@ -10,46 +10,87 @@ import (
 
 // Note: the "general handler" is the handler for the "normal" requests, the one that handles redirections.
 
-// HandlersSet is the set of "sub"-handlers for the different categories of requests (API, UI, Main).
-type HandlersSet struct {
-	General http.Handler // For browser redirection, "normal usage"
-	API     http.Handler // For handling api requests
-	UI      http.Handler // For handling the web app UI
+type rootHandler struct {
+	http.Handler
+	core    *stee.Core
+	general http.Handler
+	api     struct {
+		enable bool
+		prefix string
+		http.Handler
+	}
+	ui struct {
+		enable bool
+		prefix string
+		http.Handler
+	}
 }
 
-// RootHandler returns a http.Handler in charge of dispatching requests to the appropriate "sub"-handler
-func RootHandler(core *stee.Core, APIPrefix string, UIPrefix string) http.Handler {
-	if core == nil {
-		panic("RootHandler: no core!")
+type handleRootOption func(*rootHandler)
+
+// HandleRoot returns a http.Handler in charge of dispatching requests to the appropriate "sub"-handler
+func HandleRoot(options ...handleRootOption) http.Handler {
+
+	rh := &rootHandler{}
+
+	for _, option := range options {
+		option(rh)
 	}
 
-	// Clean the prefixes
-	prefixes := []*string{&APIPrefix, &UIPrefix}
-	for i := range prefixes {
-		if !strings.HasPrefix(*prefixes[i], "/") {
-			*prefixes[i] = "/" + *prefixes[i]
-		}
-		if strings.HasSuffix(*prefixes[i], "/") {
-			*prefixes[i] = (*prefixes[i])[:len(*prefixes[i])]
-		}
+	rh.general = handleMain(rh.core)
+	if rh.api.enable {
+		rh.api.Handler = handleAPI(rh.core, rh.api.prefix)
+	}
+	if rh.ui.enable {
+		rh.ui.Handler = handleUI(rh.core, rh.ui.prefix)
 	}
 
-	handlers := HandlersSet{
-		General: handleMain(core),
-		API:     handleAPI(core, APIPrefix),
-		UI:      handleUI(core, UIPrefix),
-	}
-
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	rh.Handler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		ctx := context.Background()
 		r = r.WithContext(ctx)
 		switch {
-		case strings.HasPrefix(r.URL.Path, APIPrefix):
-			handlers.API.ServeHTTP(w, r)
-		case strings.HasPrefix(r.URL.Path, UIPrefix):
-			handlers.UI.ServeHTTP(w, r)
+		case strings.HasPrefix(r.URL.Path, rh.api.prefix) && rh.api.enable:
+			rh.api.ServeHTTP(w, r)
+		case strings.HasPrefix(r.URL.Path, rh.ui.prefix) && rh.ui.enable:
+			rh.ui.ServeHTTP(w, r)
 		default:
-			handlers.General.ServeHTTP(w, r)
+			rh.general.ServeHTTP(w, r)
 		}
 	})
+
+	return rh
+}
+
+func Core(core *stee.Core) handleRootOption {
+	return func(rh *rootHandler) {
+		rh.core = core
+	}
+}
+
+func EnableAPI(enable bool, prefix string) handleRootOption {
+	return func(rh *rootHandler) {
+		rh.api.enable = enable
+		if enable {
+			rh.api.prefix = cleanPrefix(prefix)
+		}
+	}
+}
+
+func EnableUI(enable bool, prefix string) handleRootOption {
+	return func(rh *rootHandler) {
+		rh.ui.enable = enable
+		if enable {
+			rh.ui.prefix = cleanPrefix(prefix)
+		}
+	}
+}
+
+func cleanPrefix(prefix string) string {
+	if !strings.HasPrefix(prefix, "/") {
+		prefix = "/" + prefix
+	}
+	if strings.HasSuffix(prefix, "/") {
+		prefix = (prefix)[:len(prefix)]
+	}
+	return prefix
 }
