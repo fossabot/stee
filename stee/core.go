@@ -1,8 +1,6 @@
 package stee
 
 import (
-	"fmt"
-
 	"github.com/milanrodriguez/stee/storage"
 )
 
@@ -29,5 +27,4 @@ func NewCore() *Core {
 // Close closes the core and the connection to its storage.
 func (core *Core) Close() {
 	(*core.store).Close()
-	fmt.Printf("Core closed\n")
 }
