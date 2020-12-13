@@ -9,7 +9,7 @@ server:
         enable: true
         URLPathPrefix: "_api"
         simpleAPI:
-            enable: true # No effect at the moment, always true.
+            enable: true
     ui:
         enable: true
         URLPathPrefix: "_ui"
