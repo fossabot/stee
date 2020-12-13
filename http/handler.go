@@ -8,15 +8,16 @@ import (
 	"github.com/milanrodriguez/stee/stee"
 )
 
-// Note: the "general handler" is the handler for the "normal" requests, the one that handles redirections.
-
 type rootHandler struct {
 	http.Handler
 	core    *stee.Core
-	general http.Handler
+	general http.Handler // Note: the "general handler" is the handler for the "normal" requests, the one that handles redirections.
 	api     struct {
-		enable bool
-		prefix string
+		enable    bool
+		prefix    string
+		simpleAPI struct {
+			enable bool
+		}
 		http.Handler
 	}
 	ui struct {
@@ -39,7 +40,7 @@ func HandleRoot(options ...handleRootOption) http.Handler {
 
 	rh.general = handleMain(rh.core)
 	if rh.api.enable {
-		rh.api.Handler = handleAPI(rh.core, rh.api.prefix)
+		rh.api.Handler = handleAPI(rh.core, rh.api.prefix, rh.api.simpleAPI.enable)
 	}
 	if rh.ui.enable {
 		rh.ui.Handler = handleUI(rh.core, rh.ui.prefix)
@@ -73,6 +74,12 @@ func EnableAPI(enable bool, prefix string) handleRootOption {
 		if enable {
 			rh.api.prefix = cleanPrefix(prefix)
 		}
+	}
+}
+
+func EnableSimpleAPI(enable bool) handleRootOption {
+	return func(rh *rootHandler) {
+		rh.api.simpleAPI.enable = enable
 	}
 }
 
