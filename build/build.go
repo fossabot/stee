@@ -114,7 +114,7 @@ func getPrerelease(version string) string {
 	s := prereleaseStart
 	e := buildMetadataStart
 	if prereleaseStart == -1 {
-		s = 0
+		return ""
 	}
 	if buildMetadataStart == -1 {
 		e = len(version)
