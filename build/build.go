@@ -91,7 +91,7 @@ func getBuildType() string {
 	if err != nil {
 		panic(err)
 	}
-	gitDiffFromHEAD, err := run("git diff " + getVersion())
+	gitDiffFromHEAD, err := run("git diff HEAD")
 	if err != nil {
 		panic(err)
 	}
