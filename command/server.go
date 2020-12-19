@@ -80,7 +80,6 @@ func serverRun(cmd *cobra.Command, args []string) {
 			Handler:       httpHandler,
 		},
 	)
-
 	// Start to listen.
 	listener, err := net.ListenTCP("tcp", &net.TCPAddr{
 		IP:   net.ParseIP(config.Address),
@@ -119,18 +118,24 @@ func serverRun(cmd *cobra.Command, args []string) {
 	for range c {
 		fmt.Printf("\n🛑 Interruption requested. We're gonna perform a clean shutdown...\n")
 
+		// Shutting down http servers
 		ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
-		defer cancel()
 		err := srv.Shutdown(ctx)
+		cancel()
 		if err != nil {
 			fmt.Printf("❌ problem while shutting down the http server: %v", err)
 		}
 
+		listener.Close()
+
+		// Shutting down the core.
 		err = core.Close()
 		if err != nil {
 			fmt.Printf("❌ problem while shutting down Stee: %v", err)
 		}
 		fmt.Printf("Bye!\n")
-		break
+
+		close(c)
+		os.Exit(0)
 	}
 }
