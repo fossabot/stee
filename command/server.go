@@ -87,7 +87,7 @@ func serverRun(cmd *cobra.Command, args []string) {
 		Port: config.Port,
 	})
 	if err != nil {
-		// TODO error
+		panic(fmt.Errorf("could not start listening at %v: %v", srv.Addr, err))
 	}
 	fmt.Printf("✔️ Listening at %s\n", srv.Addr)
 	var scheme string
