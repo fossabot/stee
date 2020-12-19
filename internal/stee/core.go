@@ -33,6 +33,7 @@ func NewCore(options ...coreOption) (*Core, error) {
 	return c, err
 }
 
+// Store is an option for NewCore(). It adds a new store of the given type (in viper configuration) to the core.
 func Store(v *viper.Viper) coreOption {
 	storeType := v.GetString("type")
 	return func(c *Core) error {
@@ -46,6 +47,6 @@ func Store(v *viper.Viper) coreOption {
 }
 
 // Close closes the core and the connection to its storage.
-func (core *Core) Close() error {
-	return core.store.Close()
+func (c *Core) Close() error {
+	return c.store.Close()
 }
