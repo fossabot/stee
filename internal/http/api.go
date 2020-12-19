@@ -5,7 +5,7 @@ import (
 	"net/http"
 
 	"github.com/julienschmidt/httprouter"
-	"github.com/milanrodriguez/stee/stee"
+	"github.com/milanrodriguez/stee/internal/stee"
 )
 
 type apiHandler struct {

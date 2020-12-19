@@ -6,7 +6,7 @@ import (
 	"net/http"
 
 	"github.com/julienschmidt/httprouter"
-	"github.com/milanrodriguez/stee/stee"
+	"github.com/milanrodriguez/stee/internal/stee"
 )
 
 func handleSimpleAdd(core *stee.Core) httprouter.Handle {
@@ -36,9 +36,9 @@ func handleSimpleGet(core *stee.Core) httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 		key := ps.ByName("key")
 		target, err := core.GetRedirection(key)
-		if err != true {
+		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
-			fmt.Fprintf(w, "Impossible to read key")
+			fmt.Fprintf(w, "Impossible to read key: %s", err)
 			return
 		}
 		fmt.Fprintf(w, "Key \"%s\" is pointing to \"%s\"", key, target)

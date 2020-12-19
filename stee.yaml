@@ -13,3 +13,6 @@ server:
     ui:
         enable: true
         URLPathPrefix: "_ui"
+storage:
+    type: "file"
+    path: "/var/lib/stee/store.db"

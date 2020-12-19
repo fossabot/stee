@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/milanrodriguez/stee/stee"
+	"github.com/milanrodriguez/stee/internal/stee"
 )
 
 func handleMain(core *stee.Core) http.Handler {
@@ -19,8 +19,8 @@ func handleMain(core *stee.Core) http.Handler {
 			key = key[:len(key)-1]
 		}
 
-		target, ok := core.GetRedirection(key)
-		if !ok {
+		target, err := core.GetRedirection(key)
+		if err != nil {
 			w.WriteHeader(http.StatusNotFound)
 			fmt.Fprintf(w, "Error 404: No redirection found for key \"%s\"", key)
 			return

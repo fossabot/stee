@@ -3,13 +3,17 @@ package command
 import (
 	"context"
 	"fmt"
+	"net"
 	"net/http"
 	"os"
 	"os/signal"
+	"strconv"
+	"time"
 
-	steehttp "github.com/milanrodriguez/stee/http"
-	"github.com/milanrodriguez/stee/stee"
+	steehttp "github.com/milanrodriguez/stee/internal/http"
+	"github.com/milanrodriguez/stee/internal/stee"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
 
 func init() {
@@ -20,14 +24,15 @@ var serverCommand = &cobra.Command{
 	Use:     "server",
 	Short:   "Start the Stee server",
 	Long:    `Start the Stee server`,
-	Run:     ServerRun,
+	Run:     serverRun,
 	Aliases: []string{"serve", "srv"},
 }
 
 // ServerConfig is the configuration for the Stee server
-type ServerConfig struct {
+// struct members need to be exported for Viper to unmarshal configuration
+type serverConfig struct {
 	Address string
-	Port    string
+	Port    int
 	TLS     struct {
 		Enable   bool
 		CertPath string
@@ -46,59 +51,86 @@ type ServerConfig struct {
 	}
 }
 
-// ServerRun runs a Stee server. Blocking.
-func ServerRun(cmd *cobra.Command, args []string) {
+func serverRun(cmd *cobra.Command, args []string) {
 	// Create configuration
-	config := loadConfig().Server
+	globalConfig, err := loadConfig()
+	config := globalConfig.Server
+	if err != nil {
+		panic(fmt.Errorf("cannot load configuration: %v", err))
+	}
 
 	// Create core
-	core := stee.NewCore()
-
-	srv := steehttp.NewServer(steehttp.ServerConfig{
-		ListenAddress: config.Address + ":" + config.Port,
-		Handler: steehttp.HandleRoot(
-			steehttp.Core(core),
-			steehttp.EnableAPI(config.API.Enable, config.API.URLPathPrefix),
-			steehttp.EnableSimpleAPI(config.API.SimpleAPI.Enable),
-			steehttp.EnableUI(config.UI.Enable, config.UI.URLPathPrefix),
-		),
-	})
-
-	// Starting to listen
-	if config.TLS.Enable {
-		go func() {
-			defer fmt.Printf("Stopped listening at %s\n", srv.Addr)
-			fmt.Printf("Listening at https://%s/\n", srv.Addr)
-			err := srv.ListenAndServeTLS(config.TLS.CertPath, config.TLS.KeyPath)
-			if err != http.ErrServerClosed {
-				panic(fmt.Errorf("Server closed unexpectedly: %e", err))
-			}
-		}()
-	} else {
-		go func() {
-			defer fmt.Printf("Stopped listening at %s\n", srv.Addr)
-			fmt.Printf("\n⚠️ You are running the server without TLS encryption!\n⚠️ You should consider setting up HTTPS for production use.\n\n")
-			fmt.Printf("Listening at http://%s/\n", srv.Addr)
-			err := srv.ListenAndServe()
-			if err != http.ErrServerClosed {
-				panic(fmt.Errorf("Server closed unexpectedly: %e", err))
-			}
-		}()
+	core, err := stee.NewCore(
+		stee.Store(viper.Sub("storage")),
+	)
+	if err != nil {
+		panic(fmt.Errorf("cannot initialize Stee: %v", err))
 	}
+	_ = core.AddRedirection("_stee", "https://github.com/milanrodriguez/stee")
+
+	httpHandler := steehttp.HandleRoot(core,
+		steehttp.EnableAPI(config.API.Enable, config.API.URLPathPrefix),
+		steehttp.EnableSimpleAPI(config.API.SimpleAPI.Enable),
+		steehttp.EnableUI(config.UI.Enable, config.UI.URLPathPrefix),
+	)
+
+	srv := steehttp.NewServer(
+		steehttp.ServerConfig{
+			ListenAddress: config.Address + ":" + strconv.Itoa(config.Port),
+			Handler:       httpHandler,
+		},
+	)
+
+	// Start to listen.
+	listener, err := net.ListenTCP("tcp", &net.TCPAddr{
+		IP:   net.ParseIP(config.Address),
+		Port: config.Port,
+	})
+	if err != nil {
+		// TODO error
+	}
+	fmt.Printf("✔️ Listening at %s\n", srv.Addr)
+	var scheme string
+	var serve func() error
+	if config.TLS.Enable {
+		serve = func() error { return srv.ServeTLS(listener, config.TLS.CertPath, config.TLS.KeyPath) }
+		scheme = "https"
+	} else {
+		serve = func() error { return srv.Serve(listener) }
+		scheme = "http"
+		fmt.Printf("\n⚠️ You are running the server without TLS encryption!\n⚠️ You should consider setting up HTTPS for production use.\n\n")
+	}
+	// Start to serve.
+	go func() {
+		fmt.Printf("✔️ %s://%s/\n", scheme, srv.Addr)
+		err := serve()
+		if err != http.ErrServerClosed {
+			panic(fmt.Errorf("server closed unexpectedly: %v", err))
+		}
+	}()
 
 	//////////////////////////////////////////////////////////////////
 	// At this point initialization is done, the server is running. //
-	// We're now listening for OS signals                           //
+	// We're now listening for OS sigint signal                     //
 	//////////////////////////////////////////////////////////////////
 
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, os.Interrupt)
 	for range c {
-		fmt.Printf("\nInterruption requested. We're gonna perform a clean shutdown...\n")
-		srv.Shutdown(context.Background())
-		core.Close()
+		fmt.Printf("\n🛑 Interruption requested. We're gonna perform a clean shutdown...\n")
+
+		ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
+		defer cancel()
+		err := srv.Shutdown(ctx)
+		if err != nil {
+			fmt.Printf("❌ problem while shutting down the http server: %v", err)
+		}
+
+		err = core.Close()
+		if err != nil {
+			fmt.Printf("❌ problem while shutting down Stee: %v", err)
+		}
 		fmt.Printf("Bye!\n")
 		break
 	}
-
 }

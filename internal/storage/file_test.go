@@ -1,7 +1,10 @@
 package storage
 
 import (
+	"bytes"
 	"testing"
+
+	"github.com/spf13/viper"
 )
 
 func TestIntegratedKV(t *testing.T) {
@@ -10,14 +13,22 @@ func TestIntegratedKV(t *testing.T) {
 	var key string = t.Name()
 	var target string = t.Name() + "//redirection"
 
-	store := IntegratedKV{}
+	var config = []byte(`
+type: "file"
+path: ` + t.TempDir() + "/stee.db")
 
-	storeParams := map[string]interface{}{"filepath": t.TempDir() + "/stee.db"}
+	v := viper.New()
+	v.ReadConfig(bytes.NewBuffer(config))
+
+	store, err := newFileStore(v)
+	if err != nil {
+		t.Errorf("Could not create the store")
+	}
 
 	// open
 
-	err = store.Open(storeParams)
-	if err != nil || store.db == nil {
+	err = store.Open()
+	if err != nil {
 		t.Errorf("Could not open the store")
 	}
 
@@ -30,8 +41,8 @@ func TestIntegratedKV(t *testing.T) {
 
 	// read
 
-	readValue, ok := store.ReadRedirection(key)
-	if ok != true {
+	readValue, err := store.ReadRedirection(key)
+	if err != nil {
 		t.Errorf("Failed to read in the store")
 	}
 	if readValue != target {
@@ -47,8 +58,8 @@ func TestIntegratedKV(t *testing.T) {
 
 	// read (should fail)
 
-	_, ok = store.ReadRedirection(key)
-	if ok != false {
+	_, err = store.ReadRedirection(key)
+	if err == nil {
 		t.Errorf("Succeed to read value after delete. Shouldn't have")
 	}
 
@@ -58,17 +69,8 @@ func TestIntegratedKV(t *testing.T) {
 
 	// Try to read again
 
-	_, ok = store.ReadRedirection(key)
-	if ok != false {
+	_, err = store.ReadRedirection(key)
+	if err == nil {
 		t.Errorf("Succeed to read value after delete. Shouldn't have")
 	}
-
-	// Try to open without params
-
-	defer func() {
-		if r := recover(); r == nil {
-			t.Errorf("No panic when not providing params to open store")
-		}
-	}()
-	err = store.Open(map[string]interface{}{})
 }

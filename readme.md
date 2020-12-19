@@ -1,8 +1,9 @@
-> **:warning: Unstable**
+> **:warning: Unstable**  
 This project is in a very very early stage. It is incomplete and untested.  
 > I consider this project as a training project so you probably shouldn't use it for anything important but any critics on the code are welcomed.
 
 # Stee - URL shortening and more
+
 [![License Card](https://img.shields.io/github/license/milanrodriguez/stee)](LICENSE)
 [![Version Card](https://img.shields.io/github/v/release/milanrodriguez/stee?sort=semver)](https://github.com/milanrodriguez/stee/releases)
 [![Go Report Card](https://goreportcard.com/badge/github.com/milanrodriguez/stee)](https://goreportcard.com/report/github.com/milanrodriguez/stee)
@@ -11,12 +12,13 @@ Simple Self-hosted URL redirection service written in Go
 
 ## Features
 
-Currently Stee performs HTTP redirects key -> target.  
+Currently Stee performs HTTP redirects domain.dev/key -> target.  
+It provides a simple API to CRUD the redirections.
 It persistently stores redirections in a file on disk.
 
 ## Roadmap
 
-You can see the roadmap there: https://github.com/milanrodriguez/stee/projects/1  
+You can see the roadmap there: <https://github.com/milanrodriguez/stee/projects/1>  
   
 What's planned:
 
@@ -34,20 +36,25 @@ What's planned:
 
 ## Setup
 
-Download the binaries here: https://github.com/milanrodriguez/stee/releases.  
+Download the binaries here: <https://github.com/milanrodriguez/stee/releases>.  
 Or compile the sources (you can use the [build script](build)).
-
 
 ## Usage
 
-Execute the binaries. A file named "stee.db" will be created where the program has been invoked (pwd).    
-Soon, you'll be able to configure the path, see [this issue](https://github.com/milanrodriguez/stee/issues/9).  
+To launch Stee, you need to give it a configuration file. See [Configuration](#Configuration) for more information.  
   
 This early version implements a very simple (and unsecure) HTTP API.  
-To add a redirection, the following will work:  
+  
+To add a redirection:  
 
 ```http
 GET http://host:port/_api/simple/add/[key]/[base64URLEncodedTarget]
+```
+
+To get one:  
+
+```http
+GET http://host:port/_api/simple/get/[key]
 ```
 
 To delete one:  
@@ -56,11 +63,14 @@ To delete one:
 GET http://host:port/_api/simple/del/[key]
 ```
 
-And hitting ```http://host:port/[key]``` will redirect you to your target.  
+And hitting ```http(s)://host:port/[key]``` will redirect you to your target.  
 
 ### Configuration
 
 You can see a complete example of a configuration file [here](stee.yaml).  
+
+Stee will look for a configuration file named "stee.yaml" in the current working directory or /etc/stee/ (in this order).
+
 Flags and environment variables should be available soon, see [this issue](https://github.com/milanrodriguez/stee/issues/8).  
 
 ## Maintainer

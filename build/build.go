@@ -99,16 +99,13 @@ func getBuildType() string {
 	if gitDiffFromVersion == "" {
 		if prerelease == "" {
 			return "release"
-		} else {
-			return "pre-release"
 		}
-	} else {
-		if gitDiffFromHEAD == "" {
-			return "development (local HEAD)"
-		} else {
-			return "development"
-		}
+		return "pre-release"
 	}
+	if gitDiffFromHEAD == "" {
+		return "development (local HEAD)"
+	}
+	return "development"
 }
 
 func getPrerelease(version string) string {

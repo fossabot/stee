@@ -16,19 +16,19 @@ var (
 )
 
 // GetRedirection gets a redirection based on its key
-func (c *Core) GetRedirection(key string) (target string, ok bool) {
-	target, ok = (*c.store).ReadRedirection(key)
+func (c *Core) GetRedirection(key string) (target string, err error) {
+	target, err = c.store.ReadRedirection(key)
 	return
 }
 
 // AddRedirection adds a redirection. It takes both the key and the target of the redirection.
 func (c *Core) AddRedirection(key string, target string) (err error) {
-	err = (*c.store).WriteRedirection(key, target)
+	err = c.store.WriteRedirection(key, target)
 	return
 }
 
 // DeleteRedirection deletes a redirection based on its key.
 func (c *Core) DeleteRedirection(key string) (err error) {
-	err = (*c.store).DeleteRedirection(key)
+	err = c.store.DeleteRedirection(key)
 	return err
 }

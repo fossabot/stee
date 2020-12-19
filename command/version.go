@@ -5,23 +5,11 @@ import (
 	"text/template"
 	"time"
 
-	"github.com/milanrodriguez/stee/internal/version"
+	steeversion "github.com/milanrodriguez/stee/internal/version"
 	"github.com/spf13/cobra"
 )
 
-func init() {
-	v = Version{
-		Version:       version.Version(),
-		GitCommit:     version.GitCommit(),
-		BuildTime:     version.BuildTime().UTC().Format(time.RFC3339),
-		BuildType:     version.BuildType(),
-		BuildPlatform: version.BuildPlatform(),
-	}
-
-	rootCommand.AddCommand(versionCommand)
-}
-
-type Version struct {
+type versionInfo struct {
 	Version        string
 	GitCommit      string
 	BuildTime      string
@@ -30,7 +18,19 @@ type Version struct {
 	AdditionalInfo string
 }
 
-var v Version
+var version versionInfo
+
+func init() {
+	version = versionInfo{
+		Version:       steeversion.Version(),
+		GitCommit:     steeversion.GitCommit(),
+		BuildTime:     steeversion.BuildTime().UTC().Format(time.RFC3339),
+		BuildType:     steeversion.BuildType(),
+		BuildPlatform: steeversion.BuildPlatform(),
+	}
+
+	rootCommand.AddCommand(versionCommand)
+}
 
 const versionTemplate string = `stee version
 version:   {{.Version}} ({{.GitCommit}})
@@ -66,7 +66,7 @@ var versionCommand = &cobra.Command{
 		if err != nil {
 			panic(err)
 		}
-		err = t.Execute(os.Stdout, v)
+		err = t.Execute(os.Stdout, version)
 		if err != nil {
 			panic(err)
 		}
