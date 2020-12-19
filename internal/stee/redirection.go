@@ -8,11 +8,11 @@ type redirections map[string]string
 
 var (
 	// ErrRedirectionNotfound is used when the redirection was not found
-	ErrRedirectionNotfound = errors.New("No redirection found for this key")
+	ErrRedirectionNotfound = errors.New("no redirection found for this key")
 	// ErrRedirectionAlreadyExists is used when the redirection already exists
-	ErrRedirectionAlreadyExists = errors.New("A redirection is already associated with this key")
+	ErrRedirectionAlreadyExists = errors.New("a redirection is already associated with this key")
 	// ErrTargetIsNotAValidURL is used when the provided target is not a valid URL
-	ErrTargetIsNotAValidURL = errors.New("The redirection target is not a valid URL")
+	ErrTargetIsNotAValidURL = errors.New("the redirection target is not a valid URL")
 )
 
 // GetRedirection gets a redirection based on its key
