@@ -43,7 +43,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	fmt.Printf("\n✔ Succesful build:\n\n")
+	fmt.Printf("\n✔ Successful build:\n\n")
 	fmt.Printf("%v", out)
 
 }
