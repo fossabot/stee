@@ -7,6 +7,7 @@ This project is in a very very early stage. It is incomplete and untested.
 [![License Card](https://img.shields.io/github/license/milanrodriguez/stee)](LICENSE)
 [![Version Card](https://img.shields.io/github/v/release/milanrodriguez/stee?sort=semver)](https://github.com/milanrodriguez/stee/releases)
 [![Go Report Card](https://goreportcard.com/badge/github.com/milanrodriguez/stee)](https://goreportcard.com/report/github.com/milanrodriguez/stee)
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fmilanrodriguez%2Fstee.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Fmilanrodriguez%2Fstee?ref=badge_shield)
 
 Simple Self-hosted URL redirection service written in Go
 
@@ -80,3 +81,6 @@ Flags and environment variables should be available soon, see [this issue](https
 ## License
 
 See [LICENSE](LICENSE)
+
+
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fmilanrodriguez%2Fstee.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Fmilanrodriguez%2Fstee?ref=badge_large)
